@@ -59,10 +59,11 @@ export const InputFieldsDropDown = (props: Props): React.ReactNode => {
           menuClassName={"primary"}
           buttonClassName=""
         >
-          {inputTypes?.map((item: string): JSX.Element => {
+          {inputTypes?.map((item: string, index: number): JSX.Element => {
             return (
               <Dropdown.Item
                 onClick={(): void => handleInputTypeSelection(item)}
+                key={`input-field-${index}`}
               >
                 {item}
               </Dropdown.Item>

@@ -43,7 +43,7 @@ export interface CustomFormRadioOptions {
 
 export interface CustomFormFields {
   field_name: string;
-  field_type: "text" | "radio";
+  field_type: string;
   order: number;
   options?: CustomFormRadioOptions[];
   option_id?: number;
@@ -54,4 +54,12 @@ export interface CustomFormPayload {
   form_id?: number;
   form_title: string;
   fields: CustomFormFields[];
+}
+
+export interface FormResponse{
+  id: number;
+  type: string;
+  options: number[];
+  response_text: string;
+  selected_option: number;
 }

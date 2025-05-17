@@ -81,6 +81,7 @@ export const LoginAndSignup = (): JSX.Element => {
     }
     if (password !== confirmPassword) {
       failureAlert("Password dose not match");
+      return false;
     }
     return true;
   };

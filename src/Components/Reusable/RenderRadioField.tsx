@@ -4,12 +4,13 @@ import {
 } from "../../Interfaces/interfaces";
 
 interface Props {
+  fieldType: string;
   formItem: CustomFormFields;
   updateInputValues: Function;
 }
 
 export const RenderRadioField = (props: Props) => {
-  const { formItem: item, updateInputValues } = props;
+  const { formItem: item, updateInputValues, fieldType = "" } = props;
   return (
     <div className="p-1 d-flex flex-column align-items-center justify-content-center w-100 mt-4 border-bottom">
       <span className="w-50 ms-5 mb-2 fw-bold">{item?.field_name || "-"}</span>
@@ -22,9 +23,15 @@ export const RenderRadioField = (props: Props) => {
                 className="ms-5 ps-2 w-100 d-flex align-items-center justify-content-start"
               >
                 <input
-                  type="radio"
+                  type={fieldType}
                   name={item?.field_name || ""}
-                  onChange={() => updateInputValues(itr?.option_id || 0, item)}
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                    updateInputValues(
+                      itr?.option_id || 0,
+                      item,
+                      event?.target?.checked
+                    )
+                  }
                 ></input>
                 <span className="w-50 ms-3">{itr?.option_lable}</span>
               </div>

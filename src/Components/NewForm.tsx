@@ -11,7 +11,7 @@ import { NavBar } from "./Reusable/NavBar";
 import { NoDataFound } from "../assets/NoData";
 import { InputBox } from "./Reusable/InputBox";
 import { useSession } from "../Hooks/useSession";
-import { RadioInput } from "./Reusable/RadioInput";
+import { OptionFieldInput } from "./Reusable/OptionFieldInput";
 import { INPUT_FIELD_TYPE_LABEL, INPUT_FIELD_TYPES } from "../Helpers/enums";
 import {
   addCustomForm,
@@ -71,18 +71,19 @@ export const CreateCustomForm = (): React.ReactNode => {
       id: id,
       inputFieldTitle: "",
     };
+    setInputIds([...inputIds, id]);
+    setItems([...items, selectedInputMeta]);
+    setSelectedInputField(selectedInputMeta);
     if (item === INPUT_FIELD_TYPE_LABEL.TEXT) {
       selectedInputMeta.input = INPUT_FIELD_TYPES.TEXT;
-      setInputIds([...inputIds, id]);
-      setItems([...items, selectedInputMeta]);
-      setSelectedInputField(selectedInputMeta);
     }
     if (item === INPUT_FIELD_TYPE_LABEL.RADIO) {
-      selectedInputMeta.input = INPUT_FIELD_TYPES.RADIO;
       selectedInputMeta.options = [];
-      setInputIds([...inputIds, id]);
-      setItems([...items, selectedInputMeta]);
-      setSelectedInputField(selectedInputMeta);
+      selectedInputMeta.input = INPUT_FIELD_TYPES.RADIO;
+    }
+    if (item === INPUT_FIELD_TYPE_LABEL.CHECKBOX) {
+      selectedInputMeta.options = [];
+      selectedInputMeta.input = INPUT_FIELD_TYPES.CHECKBOX;
     }
   };
 
@@ -123,6 +124,16 @@ export const CreateCustomForm = (): React.ReactNode => {
         isValid = false;
         break;
       }
+      if (
+        item?.input === INPUT_FIELD_TYPES.CHECKBOX &&
+        !item?.options?.length
+      ) {
+        failureAlert(
+          `At least one option is required for field number : ${index + 1}`
+        );
+        isValid = false;
+        break;
+      }
     }
     return isValid;
   };
@@ -138,7 +149,11 @@ export const CreateCustomForm = (): React.ReactNode => {
         field_type: item?.input || INPUT_FIELD_TYPES.TEXT,
         order: index + 1,
       };
-      if (item?.input === INPUT_FIELD_TYPES.RADIO) {
+      if (
+        [INPUT_FIELD_TYPES.RADIO, INPUT_FIELD_TYPES.CHECKBOX]?.includes(
+          item?.input
+        )
+      ) {
         field.options = item?.options || [];
       }
       payload?.fields?.push(field);
@@ -185,7 +200,7 @@ export const CreateCustomForm = (): React.ReactNode => {
         )}
         {selectedInputField?.input === INPUT_FIELD_TYPES.TEXT && (
           <div className="d-grid align-items-center">
-            <span className="fw-bold me-3">{"Enter Input Title : "}</span>
+            <span className="fw-bold me-3">{"Enter Field Title : "}</span>
             <InputBox
               type={"text"}
               className="w-50"
@@ -198,7 +213,16 @@ export const CreateCustomForm = (): React.ReactNode => {
           </div>
         )}
         {selectedInputField?.input === INPUT_FIELD_TYPES.RADIO && (
-          <RadioInput
+          <OptionFieldInput
+            fieldType={INPUT_FIELD_TYPES.RADIO}
+            selectedInputField={selectedInputField}
+            updateInputFieldTitle={updateInputFieldTitle}
+            setSelectedInputField={setSelectedInputField}
+          />
+        )}
+        {selectedInputField?.input === INPUT_FIELD_TYPES.CHECKBOX && (
+          <OptionFieldInput
+            fieldType={INPUT_FIELD_TYPES.CHECKBOX}
             selectedInputField={selectedInputField}
             updateInputFieldTitle={updateInputFieldTitle}
             setSelectedInputField={setSelectedInputField}

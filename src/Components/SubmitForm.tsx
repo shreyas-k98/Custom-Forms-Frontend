@@ -1,12 +1,14 @@
+import "../Styles/style.css";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { NavBar } from "./Reusable/NavBar";
-import { useEffect, useState } from "react";
 import {
-  JsonObject,
   CustomFormFields,
   CustomFormPayload,
+  FormResponse,
 } from "../Interfaces/interfaces";
 import {
+  failureAlert,
   getCustomFormMeta,
   submitFormResponse,
   successAlert,
@@ -22,7 +24,9 @@ export const SubmitForm = (): React.ReactNode => {
   const { id = "" } = useParams();
   const formId: string = atob(id);
   const [customForm, setCustomForm] = useState<CustomFormPayload | null>(null);
-  const [userResponse, setUserResponse] = useState<JsonObject[]>([]);
+  const [formResponse, setFormResponse] = useState<{
+    [key: number]: Partial<FormResponse>;
+  }>({});
   const [isResponseSubmitted, setIsResponseSubmitted] =
     useState<boolean>(false);
 
@@ -38,42 +42,58 @@ export const SubmitForm = (): React.ReactNode => {
 
   const updateInputValues = (
     value: string | number = "",
-    item: CustomFormFields
+    item: CustomFormFields,
+    isSelected: boolean = false
   ): void => {
-    const filteredField: JsonObject | undefined = userResponse?.find(
-      (itr: JsonObject): boolean => itr?.id === item?.field_id
-    );
-    if (filteredField) {
-      filteredField.value = value;
-      return;
+    console.log({ value, item, isSelected });
+    const fieldId: number = item?.field_id || 0;
+    const fieldType: string = item?.field_type || "";
+    if (fieldType === INPUT_FIELD_TYPES.TEXT) {
+      setFormResponse({
+        ...formResponse,
+        [fieldId]: {
+          id: fieldId,
+          response_text: value?.toString(),
+          type: INPUT_FIELD_TYPES.TEXT,
+        },
+      });
     }
-    const field: JsonObject = {
-      value: value,
-      id: item?.field_id,
-      input_type: item?.field_type,
-    };
-    setUserResponse([...userResponse, field]);
+    if (fieldType === INPUT_FIELD_TYPES.RADIO) {
+      setFormResponse({
+        ...formResponse,
+        [fieldId]: {
+          id: fieldId,
+          selected_option: Number(value),
+          type: INPUT_FIELD_TYPES.RADIO,
+        },
+      });
+    }
+    if (fieldType === INPUT_FIELD_TYPES.CHECKBOX) {
+      let selectedOptions: number[] = formResponse?.[fieldId]?.options || [];
+      selectedOptions = isSelected
+        ? [...new Set([...selectedOptions, Number(value)])]
+        : selectedOptions?.filter((i: number): boolean => i !== value);
+      setFormResponse({
+        ...formResponse,
+        [fieldId]: {
+          id: fieldId,
+          options: selectedOptions,
+          type: INPUT_FIELD_TYPES.CHECKBOX,
+        },
+      });
+    }
   };
 
-  const prepareFormPayload = (): JsonObject => {
-    const payload: JsonObject = { fields: [] };
-    userResponse?.map((item: JsonObject): void => {
-      const field: JsonObject = {};
-      if (item?.input_type === "text") {
-        field.id = item?.id;
-        field.response_text = item?.value;
-      }
-      if (item?.input_type === "radio") {
-        field.id = item?.id;
-        field.option_id = item?.value;
-      }
-      payload?.fields?.push(field);
-    });
-    return payload;
+  const prepareFormPayload = (): { [key: string]: Partial<FormResponse>[] } => {
+    return { fields: Object.values(formResponse) };
   };
 
   const handleSubmitForm = async (): Promise<void> => {
-    const payload: JsonObject = prepareFormPayload();
+    if (!Object.values(formResponse)?.length) {
+      failureAlert("Cannot submit empty form");
+    }
+    const payload: { [key: string]: Partial<FormResponse>[] } =
+      prepareFormPayload();
     const response: Awaited<boolean> = await submitFormResponse(
       formId,
       payload
@@ -81,7 +101,9 @@ export const SubmitForm = (): React.ReactNode => {
     if (response) {
       setIsResponseSubmitted(true);
       successAlert("Response submitted successfully");
+      return;
     }
+    failureAlert("Failed to submit response");
   };
 
   return (
@@ -121,6 +143,15 @@ export const SubmitForm = (): React.ReactNode => {
                             {item?.field_type === INPUT_FIELD_TYPES.RADIO && (
                               <RenderRadioField
                                 formItem={item}
+                                fieldType={INPUT_FIELD_TYPES.RADIO}
+                                updateInputValues={updateInputValues}
+                              />
+                            )}
+                            {item?.field_type ===
+                              INPUT_FIELD_TYPES.CHECKBOX && (
+                              <RenderRadioField
+                                formItem={item}
+                                fieldType={INPUT_FIELD_TYPES.CHECKBOX}
                                 updateInputValues={updateInputValues}
                               />
                             )}
@@ -159,6 +190,7 @@ export const SubmitForm = (): React.ReactNode => {
               <div className="w-75 p-2 fw-bold fs-1 p-3 d-flex justify-content-center">
                 <span>{"Thank You for submitting the response"}</span>
               </div>
+                <span className="create-new-form text-primary" onClick={(): void => window.location.reload()}>{"Submit another response"}</span>
             </div>
           </>
         )}
