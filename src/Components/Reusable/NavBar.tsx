@@ -5,8 +5,7 @@ import {
 } from "../../Interfaces/interfaces";
 import { GenericContext } from "../Context/SessionContext";
 import { NavigateFunction, useNavigate } from "react-router";
-import { logout, noop } from "../../Helpers/helper";
-import toast from "react-hot-toast";
+import { logout, noop, successAlert } from "../../Helpers/helper";
 
 export const NavBar = () => {
   const genericContext: GenericContextInterface =
@@ -26,7 +25,7 @@ export const NavBar = () => {
       setSession({});
       setCustomForms([]);
       navigate("/");
-      toast.success("User logged out");
+      successAlert("User logged out");
     }
   };
   return (

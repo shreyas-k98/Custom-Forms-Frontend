@@ -106,3 +106,11 @@
   font-family: Arial, sans-serif;
   grid-template-columns: repeat(3, 1fr) !important;
 }
+
+.create-new-form{
+  cursor: pointer !important;
+
+  &:hover {
+    text-decoration: underline !important;
+  }
+}

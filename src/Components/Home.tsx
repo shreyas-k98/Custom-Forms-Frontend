@@ -4,27 +4,19 @@ import { NavBar } from "./Reusable/NavBar";
 import {
   CustomFormInterface,
   GenericContextInterface,
-  SessionDataInterface,
 } from "../Interfaces/interfaces";
-import { getAllFormsForUser, getSessionData } from "../Helpers/helper";
+import { getAllFormsForUser } from "../Helpers/helper";
 import { NavigateFunction, useNavigate } from "react-router";
 import { FormCard } from "./Reusable/FormCard";
 import "../Styles/style.css";
+import { useSession } from "../Hooks/useSession";
 
 export const Home = (): React.ReactNode => {
+  useSession()
   const genericContext: GenericContextInterface =
     useContext<GenericContextInterface>(GenericContext);
-  const { session, setSession, customForms, setCustomForms } = genericContext;
+  const { customForms, setCustomForms } = genericContext;
   const navigate: NavigateFunction = useNavigate();
-
-  const fetchSessionData = async (): Promise<void> => {
-    if (!!session?.user_id) return;
-    const sessionData: Awaited<SessionDataInterface> = await getSessionData();
-    setSession(sessionData);
-    if (!!sessionData?.user_id) return;
-    navigate("/");
-  };
-
   const getAllForms = async (): Promise<void> => {
     if (!!customForms?.length) return;
     const forms: Awaited<CustomFormInterface> = await getAllFormsForUser();
@@ -32,13 +24,8 @@ export const Home = (): React.ReactNode => {
     return;
   };
 
-  const initialData = async (): Promise<void> => {
-    fetchSessionData();
-    getAllForms();
-  };
-
   useEffect((): void => {
-    initialData();
+    getAllForms();
   }, []);
 
   return (
@@ -62,8 +49,7 @@ export const Home = (): React.ReactNode => {
               <span>
                 {"No Forms Available, Please add forms by using "}
                 <span
-                  className="text-primary"
-                  style={{ cursor: "pointer" }}
+                  className="text-primary create-new-form"
                   onClick={() => {
                     navigate("/form/new");
                   }}

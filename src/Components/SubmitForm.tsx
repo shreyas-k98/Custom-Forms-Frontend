@@ -1,52 +1,39 @@
-import { NavigateFunction, useNavigate, useParams } from "react-router";
+import { useParams } from "react-router";
 import { NavBar } from "./Reusable/NavBar";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
+  JsonObject,
   CustomFormFields,
   CustomFormPayload,
-  CustomFormRadioOptions,
-  GenericContextInterface,
-  JsonObject,
-  SessionDataInterface,
 } from "../Interfaces/interfaces";
 import {
   getCustomFormMeta,
-  getSessionData,
   submitFormResponse,
+  successAlert,
 } from "../Helpers/helper";
-import { GenericContext } from "./Context/SessionContext";
 import { Button, Spinner } from "reactstrap";
 import { InputBox } from "./Reusable/InputBox";
-import toast from "react-hot-toast";
+import { useSession } from "../Hooks/useSession";
+import { INPUT_FIELD_TYPES } from "../Helpers/enums";
+import { RenderRadioField } from "./Reusable/RenderRadioField";
 
 export const SubmitForm = (): React.ReactNode => {
+  useSession();
   const { id = "" } = useParams();
-  const genericContext: GenericContextInterface =
-    useContext<GenericContextInterface>(GenericContext);
-  const { session, setSession } = genericContext;
-  const navigate: NavigateFunction = useNavigate();
   const formId: string = atob(id);
   const [customForm, setCustomForm] = useState<CustomFormPayload | null>(null);
   const [userResponse, setUserResponse] = useState<JsonObject[]>([]);
   const [isResponseSubmitted, setIsResponseSubmitted] =
     useState<boolean>(false);
 
-  const fetchSessionData = async (): Promise<void> => {
-    if (!!session?.user_id) return;
-    const sessionData: Awaited<SessionDataInterface> = await getSessionData();
-    setSession(sessionData);
-    if (!!sessionData?.user_id) return;
-    navigate("/");
-  };
-
   const getInitialForm = async (): Promise<void> => {
-    const data: Awaited<CustomFormPayload> = await getCustomFormMeta(formId);
-    setCustomForm(data);
+    const data: Awaited<{ [key: string]: CustomFormPayload }> =
+      await getCustomFormMeta(formId);
+    setCustomForm(data?.form || data || {});
   };
 
   useEffect((): void => {
     getInitialForm();
-    fetchSessionData();
   }, []);
 
   const updateInputValues = (
@@ -93,7 +80,7 @@ export const SubmitForm = (): React.ReactNode => {
     );
     if (response) {
       setIsResponseSubmitted(true);
-      toast.success("Response submitted successfully");
+      successAlert("Response submitted successfully");
     }
   };
 
@@ -114,7 +101,7 @@ export const SubmitForm = (): React.ReactNode => {
                       (item: CustomFormFields, index: number): JSX.Element => {
                         return (
                           <>
-                            {item?.field_type === "text" && (
+                            {item?.field_type === INPUT_FIELD_TYPES.TEXT && (
                               <div className="p-1 d-flex flex-column align-items-center justify-content-center w-100 mt-4 border-bottom">
                                 <span className="w-50 ms-5 fw-bold">
                                   {item?.field_name || "-"}
@@ -131,41 +118,11 @@ export const SubmitForm = (): React.ReactNode => {
                                 />
                               </div>
                             )}
-                            {item?.field_type === "radio" && (
-                              <div className="p-1 d-flex flex-column align-items-center justify-content-center w-100 mt-4 border-bottom">
-                                <span className="w-50 ms-5 mb-2 fw-bold">
-                                  {item?.field_name || "-"}
-                                </span>
-                                <div className="mb-3 w-50 d-flex flex-column align-items-center justify-content-start">
-                                  {item?.options?.map(
-                                    (
-                                      itr: CustomFormRadioOptions,
-                                      index: number
-                                    ): JSX.Element => {
-                                      return (
-                                        <div
-                                          id={`radio-input-id-${index}`}
-                                          className="ms-5 ps-2 w-100 d-flex align-items-center justify-content-start"
-                                        >
-                                          <input
-                                            type="radio"
-                                            name={item?.field_name || ""}
-                                            onChange={() =>
-                                              updateInputValues(
-                                                itr?.option_id || 0,
-                                                item
-                                              )
-                                            }
-                                          ></input>
-                                          <span className="w-50 ms-3">
-                                            {itr?.option_lable}
-                                          </span>
-                                        </div>
-                                      );
-                                    }
-                                  )}
-                                </div>
-                              </div>
+                            {item?.field_type === INPUT_FIELD_TYPES.RADIO && (
+                              <RenderRadioField
+                                formItem={item}
+                                updateInputValues={updateInputValues}
+                              />
                             )}
                           </>
                         );

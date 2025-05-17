@@ -8,18 +8,22 @@ import { CreateCustomForm } from "./Components/NewForm";
 import { LoginAndSignup } from "./Components/LoginSignup";
 import { HashRouter, Route, Routes } from "react-router-dom";
 import { GenericContext } from "./Components/Context/SessionContext";
-import { CustomFormInterface, SessionDataInterface } from "./Interfaces/interfaces";
+import {
+  CustomFormInterface,
+  SessionDataInterface,
+} from "./Interfaces/interfaces";
 
 export const App = (): JSX.Element => {
+  const [customForms, setCustomForms] = useState<CustomFormInterface[]>([]);
   const [session, setSession] = useState<SessionDataInterface>({
     user_id: null,
   });
 
-  const [customForms, setCustomForms] = useState<CustomFormInterface[]>([]);
-
   return (
     <>
-      <GenericContext.Provider value={{ session, setSession, customForms, setCustomForms }}>
+      <GenericContext.Provider
+        value={{ session, setSession, customForms, setCustomForms }}
+      >
         <Toaster />
         <HashRouter basename="/">
           <Routes>

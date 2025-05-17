@@ -1,6 +1,11 @@
 import { useContext, useEffect, useState } from "react";
-import toast from "react-hot-toast";
-import { getSessionData, login, signup } from "../Helpers/helper";
+import {
+  getSessionData,
+  login,
+  signup,
+  successAlert,
+  failureAlert,
+} from "../Helpers/helper";
 import { InputBox } from "./Reusable/InputBox";
 import {
   LoginCredentials,
@@ -23,19 +28,17 @@ export const LoginAndSignup = (): JSX.Element => {
     password: undefined,
   });
   const [signUpData, setSignUpData] = useState<SignupDataInterface>({
-    username: "",
-    password: "",
     name: "",
     email: "",
+    username: "",
+    password: "",
     confirmPassword: "",
   });
 
   const initialData = async (): Promise<void> => {
     const data: Awaited<SessionDataInterface> = await getSessionData();
     setSession(data);
-    if (!!data?.user_id) {
-      navigate("forms/home");
-    }
+    !!data?.user_id && navigate("forms/home");
   };
 
   useEffect((): void => {
@@ -45,7 +48,7 @@ export const LoginAndSignup = (): JSX.Element => {
   const loginHandler = async (): Promise<void> => {
     const { username, password } = loginData;
     if (!username || !password) {
-      toast.error("Enter username and password");
+      failureAlert("Enter username and password");
       return;
     }
     const sessionResponse: Awaited<SessionDataInterface> = await login(
@@ -54,44 +57,43 @@ export const LoginAndSignup = (): JSX.Element => {
     );
     if (!!sessionResponse?.user_id) {
       setSession(sessionResponse);
-      toast.success("Successfully logged in");
+      successAlert("Successfully logged in");
       navigate("/forms/home");
     } else {
-      toast.error("Failed to login");
+      failureAlert("Failed to login");
     }
   };
 
   const validateEmail = (email: string): boolean => {
     const emailRegex: RegExp = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
-  }
+  };
 
   const validateSignup = (): boolean => {
-    const failureAlert: Function = toast.error;
-    const { name, email, username, password, confirmPassword } = signUpData
-    if(!(name && email && username && password && confirmPassword)){
+    const { name, email, username, password, confirmPassword } = signUpData;
+    if (!(name && email && username && password && confirmPassword)) {
       failureAlert("All fields are mandatory");
       return false;
     }
-    if(!validateEmail(email)){
+    if (!validateEmail(email)) {
       failureAlert("Invalid email address");
       return false;
     }
-    if(password !== confirmPassword){
+    if (password !== confirmPassword) {
       failureAlert("Password dose not match");
     }
     return true;
-  }
+  };
 
   const signUpHandler = async (): Promise<void> => {
-    if(!validateSignup()) return;
+    if (!validateSignup()) return;
     const response: Awaited<boolean> = await signup(signUpData);
-    if(response){
-      toast.success("Successfully signed up");
+    if (response) {
+      successAlert("Successfully signed up");
       setIsLoginActive(true);
       return;
     }
-    toast.error("Something went wrong");
+    failureAlert("Failed to sign up");
     return;
   };
 
@@ -166,7 +168,9 @@ export const LoginAndSignup = (): JSX.Element => {
               placeholder="Name"
               isDisabled={false}
               className="auth-input w-100"
-              onChange={(value: string) => setSignUpData({...signUpData, name: value})}
+              onChange={(value: string) =>
+                setSignUpData({ ...signUpData, name: value })
+              }
               otherProps={{
                 onKeyDown: (event: React.KeyboardEvent): void => {
                   if (event?.key === "Enter") signUpHandler();
@@ -180,7 +184,9 @@ export const LoginAndSignup = (): JSX.Element => {
               placeholder="Email"
               isDisabled={false}
               className="auth-input w-100"
-              onChange={(value: string) => setSignUpData({...signUpData, email: value})}
+              onChange={(value: string) =>
+                setSignUpData({ ...signUpData, email: value })
+              }
               otherProps={{
                 onKeyDown: (event: React.KeyboardEvent): void => {
                   if (event?.key === "Enter") signUpHandler();
@@ -194,7 +200,9 @@ export const LoginAndSignup = (): JSX.Element => {
               placeholder="Username"
               isDisabled={false}
               className="auth-input w-100"
-              onChange={(value: string) => setSignUpData({...signUpData, username: value})}
+              onChange={(value: string) =>
+                setSignUpData({ ...signUpData, username: value })
+              }
               otherProps={{
                 onKeyDown: (event: React.KeyboardEvent): void => {
                   if (event?.key === "Enter") signUpHandler();
@@ -208,7 +216,9 @@ export const LoginAndSignup = (): JSX.Element => {
               placeholder="Password"
               isDisabled={false}
               className="auth-input w-100"
-              onChange={(value: string) => setSignUpData({...signUpData, password: value})}
+              onChange={(value: string) =>
+                setSignUpData({ ...signUpData, password: value })
+              }
               otherProps={{
                 onKeyDown: (event: React.KeyboardEvent): void => {
                   if (event?.key === "Enter") signUpHandler();
@@ -222,7 +232,9 @@ export const LoginAndSignup = (): JSX.Element => {
               placeholder="Confirm Password"
               isDisabled={false}
               className="auth-input w-100"
-              onChange={(value: string) => setSignUpData({...signUpData, confirmPassword: value})}
+              onChange={(value: string) =>
+                setSignUpData({ ...signUpData, confirmPassword: value })
+              }
               otherProps={{
                 onKeyDown: (event: React.KeyboardEvent): void => {
                   if (event?.key === "Enter") signUpHandler();

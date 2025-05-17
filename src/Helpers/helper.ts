@@ -1,3 +1,4 @@
+import toast from "react-hot-toast";
 import axios, { AxiosResponse } from "axios";
 import {
   CustomFormInterface,
@@ -102,7 +103,7 @@ export const addCustomForm = async (
 
 export const getCustomFormMeta = async (
   formId: string
-): Promise<CustomFormPayload> => {
+): Promise<{ [key: string]: CustomFormPayload }> => {
   try {
     const response: Awaited<AxiosResponse> = await axios.get(
       `/api/form/${formId}`
@@ -142,4 +143,12 @@ export const getFormResponses = async (
   } catch (error: unknown) {
     throw error;
   }
+};
+
+export const failureAlert = (message: string): void => {
+  toast.error(message, { duration: 1000 });
+};
+
+export const successAlert = (message: string): void => {
+  toast.success(message, { duration: 3000 });
 };

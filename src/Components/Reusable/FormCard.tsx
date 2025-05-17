@@ -1,8 +1,7 @@
 import { useState } from "react";
 import "../../Styles/style.css";
-import toast from "react-hot-toast";
 import { AxiosResponse } from "axios";
-import { getFormResponses } from "../../Helpers/helper";
+import { getFormResponses, successAlert } from "../../Helpers/helper";
 import { CustomFormInterface } from "../../Interfaces/interfaces";
 import { Button, Card, CardBody, CardSubtitle, CardTitle, Spinner } from "reactstrap";
 
@@ -19,7 +18,7 @@ export const FormCard = (props: Props): React.ReactNode => {
     const formId: string = btoa(form_id?.toString() || "");
     const formLink: string = `${window.location.host}/#/submit/form/${formId}`;
     await navigator.clipboard.writeText(formLink);
-    toast.success("Copied link to clipboard");
+    successAlert("Copied link to clipboard");
   };
 
   const onClickDownloadResponses = async (): Promise<void> => {
