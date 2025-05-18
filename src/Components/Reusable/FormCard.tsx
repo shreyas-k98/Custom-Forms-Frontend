@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "../../Styles/style.css";
 import { AxiosResponse } from "axios";
+import { LinkIcon } from "../../assets/Link";
 import { getFormResponses, successAlert } from "../../Helpers/helper";
 import { CustomFormInterface } from "../../Interfaces/interfaces";
 import { Button, Card, CardBody, CardSubtitle, CardTitle, Spinner } from "reactstrap";
@@ -39,17 +40,17 @@ export const FormCard = (props: Props): React.ReactNode => {
       <Card
         color="light"
         style={{
-          width: "345px",
+          width: "362px",
           height: "150px",
         }}
         className="uplift"
       >
         <CardBody>
-          <CardTitle tag={"h5"}>{form_title}</CardTitle>
+          <CardTitle tag={"h5"}>{form_title?.length > 23 ? `${form_title?.slice(0, 23)}...` : form_title}</CardTitle>
           <CardSubtitle tag={"h6"} className="mb-2 text-muted">
             {`Created At: ${new Date(created_at)?.toLocaleDateString()}`}
           </CardSubtitle>
-          <div className="d-flex justify-content-between mt-3">
+          <div className="d-flex justify-content-between" style={{marginTop: "10%"}}>
             <Button color="success" outline={true} onClick={onClickDownloadResponses}>
               <>
                 {"Download Responses"}
@@ -64,8 +65,9 @@ export const FormCard = (props: Props): React.ReactNode => {
                 )}
               </>
             </Button>
-            <Button color="primary" onClick={onClickCopyLink}>
-              {"Copy Link"}
+            <Button color="primary" onClick={onClickCopyLink} className="d-flex align-items-center">
+              <span>{"Copy Link"}</span>
+              <LinkIcon className="ms-2"/>
             </Button>
           </div>
         </CardBody>

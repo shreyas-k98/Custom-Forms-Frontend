@@ -100,6 +100,10 @@ export const CreateCustomForm = (): React.ReactNode => {
       failureAlert("Form title is mandatory");
       return false;
     }
+    if (!!formTitle && formTitle?.length > 50) {
+      failureAlert("Form title is too long");
+      return false;
+    }
     if (!items?.length) {
       failureAlert("At least one field is required to create form");
       return false;
