@@ -35,8 +35,9 @@ export const InputFieldsDropDown = (props: Props): React.ReactNode => {
       <div>
         <Button
           id={"save-form"}
-          className="btn btn-success me-4"
           onClick={saveFormData}
+          disabled={saveFormLoading}
+          className="btn btn-success me-4"
         >
           <>
             {"Save form"}
