@@ -17,12 +17,14 @@ export const RenderRadioField = (props: Props) => {
       <div className="mb-3 w-50 d-flex flex-column align-items-center justify-content-start">
         {item?.options?.map(
           (itr: CustomFormRadioOptions, index: number): JSX.Element => {
+            const optionId: string = `option-id-${itr?.option_id || 0}`
             return (
               <div
                 id={`radio-input-id-${index}`}
                 className="ms-5 ps-2 w-100 d-flex align-items-center justify-content-start"
               >
                 <input
+                  id={optionId}
                   type={fieldType}
                   name={item?.field_name || ""}
                   onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
@@ -33,7 +35,7 @@ export const RenderRadioField = (props: Props) => {
                     )
                   }
                 ></input>
-                <span className="w-50 ms-3">{itr?.option_lable}</span>
+                <label className="w-50 ms-3" htmlFor={optionId}>{itr?.option_lable || ""}</label>
               </div>
             );
           }
