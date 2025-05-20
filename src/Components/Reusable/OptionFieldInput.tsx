@@ -43,7 +43,7 @@ export const OptionFieldInput = (props: Props): React.ReactNode => {
     options.splice(index, 1);
     setSelectedInputField({ ...selectedInputField });
   };
-  
+
   return (
     <div className="d-grid align-items-center">
       <span className="fw-bold me-3">{"Enter Field Title : "}</span>
