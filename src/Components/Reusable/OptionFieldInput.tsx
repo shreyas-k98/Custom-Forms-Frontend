@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button } from "reactstrap";
+import { Button, CloseButton, Table } from "reactstrap";
 import { InputBox } from "./InputBox";
 import { failureAlert } from "../../Helpers/helper";
 import { JsonObject } from "../../Interfaces/interfaces";
@@ -37,6 +37,13 @@ export const OptionFieldInput = (props: Props): React.ReactNode => {
     setSelectedInputField({ ...selectedInputField });
     setAddRadioOption({ label: "", value: "" });
   };
+
+  const removeOption = (index: number): void => {
+    const options: JsonObject[] = selectedInputField?.options || [];
+    options.splice(index, 1);
+    setSelectedInputField({ ...selectedInputField });
+  };
+  
   return (
     <div className="d-grid align-items-center">
       <span className="fw-bold me-3">{"Enter Field Title : "}</span>
@@ -82,20 +89,36 @@ export const OptionFieldInput = (props: Props): React.ReactNode => {
           {"Add"}
         </Button>
         {!!selectedInputField?.options?.length && (
-          <div className="mt-4 ms-5">
-            {selectedInputField?.options?.map(
-              (item: JsonObject): JSX.Element => {
-                return (
-                  <div className="w-100 h-100">
-                    <input
-                      type={fieldType}
-                      name={selectedInputField?.id}
-                    ></input>
-                    <span className="ms-3 fw-bold">{item?.label || ""}</span>
-                  </div>
-                );
-              }
-            )}
+          <div className="mt-4 me-5">
+            <Table bordered hover responsive striped>
+              <thead>
+                <th></th>
+                <th>{"Label"}</th>
+                <th>{"Value"}</th>
+                <th></th>
+              </thead>
+              <tbody>
+                {selectedInputField?.options?.map(
+                  (item: JsonObject, index: number): JSX.Element => {
+                    return (
+                      <tr>
+                        <td>{index + 1}</td>
+                        <td>{`${item?.label?.slice(0, 20)}${item?.label?.length > 20 ? "..." : ""}`}</td>
+                        <td>{`${item?.value?.slice(0, 20)}${item?.value?.length > 20 ? "..." : ""}`}</td>
+                        <td>
+                          <CloseButton
+                            className="h-25 w-25 d-flex mt-2"
+                            onClick={(event: React.MouseEvent): void =>
+                              removeOption(index)
+                            }
+                          />
+                        </td>
+                      </tr>
+                    );
+                  }
+                )}
+              </tbody>
+            </Table>
           </div>
         )}
       </div>
